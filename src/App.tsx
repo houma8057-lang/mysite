@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Toaster } from 'react-hot-toast';
+import { Toaster } from 'sonner';
 import { BarChart2, Wallet, Activity, Settings } from 'lucide-react';
 import { api } from './lib/api';
 import SentimentGauge from './components/SentimentGauge';
