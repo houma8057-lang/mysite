@@ -6,6 +6,7 @@ import { api } from './lib/api';
 import SentimentGauge from './components/SentimentGauge';
 import WSIHistoryChart from './components/WSIHistoryChart';
 import DryPowderGauge from './components/DryPowderGauge';
+import WhaleActivityCard from "./components/WhaleActivityCard";
 import FundingRateCard from "./components/FundingRateCard";
 import OIDivergenceCard from './components/OIDivergenceCard';
 import WalletManager from './components/WalletManager';
@@ -25,6 +26,7 @@ function DashboardPage() {
       {lh ? <Skeleton h="h-[300px]" /> : <WSIHistoryChart data={h??[]} />}
       <div className="grid grid-cols-2 gap-4"><DryPowderGauge /><OIDivergenceCard /></div>
       <FundingRateCard />
+      <WhaleActivityCard />
     </div>
   );
 }
