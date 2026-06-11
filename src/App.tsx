@@ -7,6 +7,7 @@ import SentimentGauge from './components/SentimentGauge';
 import WSIHistoryChart from './components/WSIHistoryChart';
 import DryPowderGauge from './components/DryPowderGauge';
 import WhaleActivityCard from "./components/WhaleActivityCard";
+import ReversalScoreCard from "./components/ReversalScoreCard";
 import MarketContextCard from "./components/MarketContextCard";
 import FundingRateCard from "./components/FundingRateCard";
 import OIDivergenceCard from './components/OIDivergenceCard';
@@ -23,6 +24,7 @@ function DashboardPage() {
   const { data: h, isLoading: lh } = useQuery({ queryKey: ['history'], queryFn: () => api.getHistory(30), refetchInterval: 60000 });
   return (
     <div className="space-y-4">
+      <ReversalScoreCard />
       <MarketContextCard />
       {ls ? <Skeleton h="h-72" /> : <SentimentGauge wsi={s?.wsi??0} longPct={s?.long_pct??0} shortPct={s?.short_pct??0} totalNtl={s?.total_ntl??0} />}
       {lh ? <Skeleton h="h-[300px]" /> : <WSIHistoryChart data={h??[]} />}
