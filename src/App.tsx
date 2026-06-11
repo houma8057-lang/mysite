@@ -23,6 +23,7 @@ function DashboardPage() {
   const { data: h, isLoading: lh } = useQuery({ queryKey: ['history'], queryFn: () => api.getHistory(30), refetchInterval: 60000 });
   return (
     <div className="space-y-4">
+      <MarketContextCard />
       {ls ? <Skeleton h="h-72" /> : <SentimentGauge wsi={s?.wsi??0} longPct={s?.long_pct??0} shortPct={s?.short_pct??0} totalNtl={s?.total_ntl??0} />}
       {lh ? <Skeleton h="h-[300px]" /> : <WSIHistoryChart data={h??[]} />}
       <div className="grid grid-cols-2 gap-4"><DryPowderGauge /><OIDivergenceCard /></div>
