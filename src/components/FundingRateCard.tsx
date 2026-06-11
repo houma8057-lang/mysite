@@ -84,8 +84,7 @@ export default function FundingRateCard() {
       </div>
       <div className="mt-4 p-3 bg-[#1a1a2e] rounded-xl">
         <p className="text-[10px] text-[#4a4a6a] leading-relaxed">
-          <span className="text-[#059669] font-bold">BULLISH signal</span> = funding sالب → shorts يدفعون → ضغط بيع مرتفع → قاع محتمل.
-          <span className="text-[#DC2626] font-bold"> BEARISH signal</span> = funding موجب → longs يدفعون → سوق محموم → قمة محتملة.
+          <span className="text-[#059669] font-bold">BULLISH</span> = negative funding → shorts pay longs → potential bottom. <span className="text-[#DC2626] font-bold">BEARISH</span> = positive funding → longs pay shorts → potential top.
         </p>
       </div>
     </div>
