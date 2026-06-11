@@ -7,6 +7,7 @@ import SentimentGauge from './components/SentimentGauge';
 import WSIHistoryChart from './components/WSIHistoryChart';
 import DryPowderGauge from './components/DryPowderGauge';
 import WhaleActivityCard from "./components/WhaleActivityCard";
+import MarketContextCard from "./components/MarketContextCard";
 import FundingRateCard from "./components/FundingRateCard";
 import OIDivergenceCard from './components/OIDivergenceCard';
 import WalletManager from './components/WalletManager';
