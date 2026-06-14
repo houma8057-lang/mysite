@@ -15,8 +15,9 @@ import WalletManager from './components/WalletManager';
 import PositionTable from './components/PositionTable';
 import ReversalAlert from './components/ReversalAlert';
 import SettingsPage from './components/SettingsPage';
+import SignalsPage from './components/SignalsPage';
 
-type Tab = 'dashboard'|'wallets'|'positions'|'settings';
+type Tab = 'dashboard'|'wallets'|'positions'|'signals'|'settings';
 function Skeleton({ h='h-48' }: { h?: string }) { return <div className={`skeleton ${h} rounded-2xl`} />; }
 
 function LoadingScreen() {
@@ -60,6 +61,7 @@ const NAV = [
   { id:'dashboard' as Tab, label:'Dashboard', Icon:BarChart2 },
   { id:'wallets' as Tab, label:'Wallets', Icon:Wallet },
   { id:'positions' as Tab, label:'Positions', Icon:Activity },
+  { id:'signals' as Tab, label:'Signals', Icon:Activity },
   { id:'settings' as Tab, label:'Settings', Icon:Settings },
 ];
 
@@ -114,6 +116,7 @@ export default function App() {
             {tab==='dashboard' && <DashboardPage />}
             {tab==='wallets' && <WalletManager />}
             {tab==='positions' && <PositionTable />}
+            {tab==='signals' && <SignalsPage />}
             {tab==='settings' && <SettingsPage />}
           </main>
         </div>
