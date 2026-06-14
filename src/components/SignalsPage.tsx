@@ -32,6 +32,7 @@ export default function SignalsPage() {
   const buyMet = data?.buy_conditions_met ?? 0;
   const sellMet = data?.sell_conditions_met ?? 0;
   const confidence = Math.round(Math.max(buyMet, sellMet) / 3 * 100);
+  const whaleDelta = conditions.whale_delta ?? {};
 
   const getSignalStyle = () => {
     if (signal.includes('STRONG BUY')) return { color: 'text-[#059669]', bg: 'bg-[rgba(5,150,105,0.15)]', border: 'border-[rgba(5,150,105,0.4)]', emoji: '🟢', bar: 'bg-[#059669]' };
@@ -46,13 +47,13 @@ export default function SignalsPage() {
   const buyConditions = [
     { label: 'WSI Extreme SHORT', value: `${conditions.wsi}`, met: conditions.wsi_met_buy, threshold: '< -0.800' },
     { label: 'Funding Negative', value: `${conditions.funding}%`, met: conditions.funding_met_buy, threshold: '< -0.001%' },
-    { label: 'Whales Heavy SHORT', value: conditions.whale_short ? 'YES' : 'NO', met: conditions.whale_short, threshold: '> 65% SHORT' },
+    { label: 'Whales Closing SHORT', value: conditions.whale_closing_short ? 'YES' : 'NO', met: conditions.whale_closing_short, threshold: 'Shorts ↓ 10%+' },
   ];
 
   const sellConditions = [
     { label: 'WSI Extreme LONG', value: `${conditions.wsi}`, met: conditions.wsi_met_sell, threshold: '> +0.800' },
     { label: 'Funding Positive', value: `${conditions.funding}%`, met: conditions.funding_met_sell, threshold: '> +0.001%' },
-    { label: 'Whales Heavy LONG', value: conditions.whale_long ? 'YES' : 'NO', met: conditions.whale_long, threshold: '> 65% LONG' },
+    { label: 'Whales Closing LONG', value: conditions.whale_closing_long ? 'YES' : 'NO', met: conditions.whale_closing_long, threshold: 'Longs ↓ 10%+' },
   ];
 
   const history = historyData?.history ?? [];
@@ -101,6 +102,33 @@ export default function SignalsPage() {
            'Weak signal — waiting for more confirmation.'}
         </div>
       </div>
+
+      {/* Whale Delta Info */}
+      {whaleDelta.has_history && (
+        <div className="bg-[#0d0d1a] p-4 rounded-2xl border border-[rgba(255,255,255,0.06)]">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4a4a6a] mb-3">Whale Position Delta (24h)</div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-[#1a1a2e] p-3 rounded-xl">
+              <div className="text-[11px] text-[#4a4a6a]">Short Delta</div>
+              <div className={`text-[16px] font-bold font-mono ${whaleDelta.short_delta_pct < 0 ? 'text-[#059669]' : whaleDelta.short_delta_pct > 0 ? 'text-[#DC2626]' : 'text-[#4a4a6a]'}`}>
+                {whaleDelta.short_delta_pct > 0 ? '+' : ''}{whaleDelta.short_delta_pct}%
+              </div>
+              <div className="text-[10px] text-[#4a4a6a] mt-1">
+                {whaleDelta.short_delta_pct < -10 ? 'Closing shorts 🟢' : whaleDelta.short_delta_pct > 10 ? 'Adding shorts 🔴' : 'No change'}
+              </div>
+            </div>
+            <div className="bg-[#1a1a2e] p-3 rounded-xl">
+              <div className="text-[11px] text-[#4a4a6a]">Long Delta</div>
+              <div className={`text-[16px] font-bold font-mono ${whaleDelta.long_delta_pct < 0 ? 'text-[#DC2626]' : whaleDelta.long_delta_pct > 0 ? 'text-[#059669]' : 'text-[#4a4a6a]'}`}>
+                {whaleDelta.long_delta_pct > 0 ? '+' : ''}{whaleDelta.long_delta_pct}%
+              </div>
+              <div className="text-[10px] text-[#4a4a6a] mt-1">
+                {whaleDelta.long_delta_pct < -10 ? 'Closing longs 🔴' : whaleDelta.long_delta_pct > 10 ? 'Adding longs 🟢' : 'No change'}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* BUY Conditions */}
       <div className="bg-[#0d0d1a] p-5 rounded-2xl border border-[rgba(255,255,255,0.06)]">
