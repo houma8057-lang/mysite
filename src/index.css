@@ -39,3 +39,8 @@ body {
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: #0a0a0f; }
 ::-webkit-scrollbar-thumb { background: #2d2d3d; border-radius: 2px; }
+@keyframes smoothBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(-10px); opacity: 1; }
+}
+.smooth-bounce { animation: smoothBounce 1.2s ease-in-out infinite; }

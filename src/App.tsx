@@ -32,9 +32,9 @@ function LoadingScreen() {
         <div className="text-[13px] text-[#4a4a6a]">Loading smart money data...</div>
       </div>
       <div className="flex gap-1.5">
-        <div className="w-2 h-2 rounded-full bg-[#C9A227] animate-bounce" style={{animationDelay:'0ms'}}/>
-        <div className="w-2 h-2 rounded-full bg-[#C9A227] animate-bounce" style={{animationDelay:'150ms'}}/>
-        <div className="w-2 h-2 rounded-full bg-[#C9A227] animate-bounce" style={{animationDelay:'300ms'}}/>
+        <div className="w-2 h-2 rounded-full bg-[#C9A227] smooth-bounce" style={{animationDelay:'0ms'}}/>
+        <div className="w-2 h-2 rounded-full bg-[#C9A227] smooth-bounce" style={{animationDelay:'150ms'}}/>
+        <div className="w-2 h-2 rounded-full bg-[#C9A227] smooth-bounce" style={{animationDelay:'300ms'}}/>
       </div>
     </div>
   );
