@@ -69,7 +69,7 @@ export default function App() {
   const { data: wallets } = useQuery({ queryKey: ['wallets'], queryFn: api.getWallets });
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1500);
+    const timer = setTimeout(() => setLoading(false), 3000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -87,7 +87,7 @@ export default function App() {
             </div>
             <div>
               <div className="text-[20px] font-bold text-white leading-none tracking-tight">HyperFlow</div>
-              <div className="text-[10px] font-medium text-[#4a4a6a] uppercase tracking-[0.08em]">{wallets?.length??0} WALLETS TRACKED</div>
+              <div className="text-[10px] font-medium text-[#4a4a6a] uppercase tracking-[0.08em]">Smart Money Tracker</div>
             </div>
           </div>
           <div className="flex items-center gap-1.5 bg-[rgba(5,150,105,0.1)] border border-[rgba(5,150,105,0.2)] rounded-full px-2.5 py-1">
