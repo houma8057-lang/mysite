@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { BarChart2, Wallet, Activity, Settings } from 'lucide-react';
@@ -18,6 +18,27 @@ import SettingsPage from './components/SettingsPage';
 
 type Tab = 'dashboard'|'wallets'|'positions'|'settings';
 function Skeleton({ h='h-48' }: { h?: string }) { return <div className={`skeleton ${h} rounded-2xl`} />; }
+
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen bg-[#0a0a0f] flex flex-col items-center justify-center gap-6">
+      <div className="w-16 h-16 bg-[#C9A227] rounded-2xl flex items-center justify-center">
+        <svg width="32" height="26" viewBox="0 0 18 14" fill="none">
+          <path d="M1 13L6 2L9 8L12 4L17 13" stroke="#0a0a0f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
+      <div className="text-center">
+        <div className="text-[24px] font-bold text-white mb-1">HyperFlow</div>
+        <div className="text-[13px] text-[#4a4a6a]">Loading smart money data...</div>
+      </div>
+      <div className="flex gap-1.5">
+        <div className="w-2 h-2 rounded-full bg-[#C9A227] animate-bounce" style={{animationDelay:'0ms'}}/>
+        <div className="w-2 h-2 rounded-full bg-[#C9A227] animate-bounce" style={{animationDelay:'150ms'}}/>
+        <div className="w-2 h-2 rounded-full bg-[#C9A227] animate-bounce" style={{animationDelay:'300ms'}}/>
+      </div>
+    </div>
+  );
+}
 
 function DashboardPage() {
   const { data: s, isLoading: ls } = useQuery({ queryKey: ['sentiment'], queryFn: api.getSentiment, refetchInterval: 10000 });
@@ -44,7 +65,16 @@ const NAV = [
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('dashboard');
+  const [loading, setLoading] = useState(true);
   const { data: wallets } = useQuery({ queryKey: ['wallets'], queryFn: api.getWallets });
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) return <LoadingScreen />;
+
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
       <Toaster position="top-center" />
