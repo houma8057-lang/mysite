@@ -96,7 +96,7 @@ export default function SignalsPage() {
         <p className="text-[11px] text-[#4a4a6a] leading-relaxed">
           <span className="text-[#059669] font-bold">STRONG BUY</span> = 3/3 conditions met. 
           <span className="text-[#34d399] font-bold"> WEAK BUY</span> = 2/3 conditions met. 
-          Signals update every 30 seconds. Based on smart money whale wallets on Hyperliquid.
+          Recommended Timeframe: 4H / Daily. Signals update every 30 seconds. Based on smart money whale wallets on Hyperliquid.
         </p>
       </div>
     </div>
