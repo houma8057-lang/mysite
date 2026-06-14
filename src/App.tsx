@@ -88,8 +88,8 @@ export default function App() {
               <svg width="18" height="14" viewBox="0 0 18 14" fill="none"><path d="M1 13L6 2L9 8L12 4L17 13" stroke="#0a0a0f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </div>
             <div>
-              <div className="text-[20px] font-bold text-white leading-none tracking-tight">HyperFlow</div>
-              <div className="text-[10px] font-medium text-[#4a4a6a] uppercase tracking-[0.08em]">Smart Money Tracker</div>
+              <div className="text-[20px] font-bold text-white leading-tight tracking-tight">HyperFlow</div>
+              <div className="text-[10px] font-medium text-[#4a4a6a] uppercase tracking-[0.08em] mt-0.5">Smart Money Tracker</div>
             </div>
           </div>
           <div className="flex items-center gap-1.5 bg-[rgba(5,150,105,0.1)] border border-[rgba(5,150,105,0.2)] rounded-full px-2.5 py-1">
