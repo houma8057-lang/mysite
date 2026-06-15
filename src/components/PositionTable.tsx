@@ -13,7 +13,7 @@ export default function PositionTable() {
     <div className="bg-[#0d0d1a] rounded-2xl border border-[rgba(255,255,255,0.06)] shadow-lg overflow-hidden">
       <div className="p-5 pb-4">
         <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4a4a6a] mb-1">Whale Positions</h2>
-        <p className="text-[12px] text-[#4a4a6a]">{data?.summary?.length||0} wallets · {(data?.detail||[]).length} positions</p>
+        <p className="text-[12px] text-[#4a4a6a]">{(data?.detail||[]).length} active positions</p>
       </div>
       {isLoading?<div className="py-10 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-[#C9A227]"/></div>:sorted.length===0?
       <div className="py-10 text-center text-[13px] text-[#4a4a6a]">No active positions detected</div>:
