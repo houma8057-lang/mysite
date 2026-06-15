@@ -59,7 +59,7 @@ function DashboardPage() {
 
 const NAV = [
   { id:'dashboard' as Tab, label:'Dashboard', Icon:BarChart2 },
-  { id:'wallets' as Tab, label:'Wallets', Icon:Wallet },
+  
   { id:'positions' as Tab, label:'Positions', Icon:Activity },
   { id:'signals' as Tab, label:'Signals', Icon:Activity },
   { id:'settings' as Tab, label:'Settings', Icon:Settings },
@@ -114,7 +114,7 @@ export default function App() {
           </nav>
           <main className="lg:col-span-3">
             {tab==='dashboard' && <DashboardPage />}
-            {tab==='wallets' && <WalletManager />}
+            
             {tab==='positions' && <PositionTable />}
             {tab==='signals' && <SignalsPage />}
             {tab==='settings' && <SettingsPage />}
