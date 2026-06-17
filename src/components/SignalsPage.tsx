@@ -27,7 +27,7 @@ export default function SignalsPage() {
       return res.json();
     },
     refetchInterval: 300000,
-    enabled: showHistory,
+    enabled: true,
   });
 
   if (isLoading) return <LoadingScreen />;
