@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Toaster } from 'sonner';
 
-const fmt = (v: number) => `$${v.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-
-const API = 'https://hyperflow-backend-3l62.onrender.com/api';
+const API = 'https://hyperflow-backend-3l62.onrender.com';
 
 export default function SignalsPage() {
   const [showHistory, setShowHistory] = useState(false);
@@ -11,26 +10,32 @@ export default function SignalsPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['signals'],
     queryFn: async () => {
-      const res = await fetch(`${API}/signals/current`);
+      const res = await fetch(`${API}/api/signals/current`);
+      if (!res.ok) throw new Error('Failed');
       return res.json();
     },
-    refetchInterval: 30000
+    refetchInterval: 60000,
+    enabled: true,
   });
 
   const { data: historyData } = useQuery({
-    queryKey: ['signals-history'],
+    queryKey: ['signal-history'],
     queryFn: async () => {
-      const res = await fetch(`${API}/signals/history`);
+      const res = await fetch(`${API}/api/signals/history?limit=50`);
+      if (!res.ok) throw new Error('Failed');
       return res.json();
     },
-    refetchInterval: 60000
+    refetchInterval: 300000,
+    enabled: showHistory,
   });
 
-  const signal = data?.signal ?? 'LOADING';
-  const conditions = data?.conditions ?? {};
-  const buyMet = data?.buy_conditions_met ?? 0;
-  const sellMet = data?.sell_conditions_met ?? 0;
-  const confidence = Math.round(Math.max(buyMet, sellMet) / 3 * 100);
+  if (isLoading) return <LoadingScreen />;
+
+  const conditions = data?.conditions || {};
+  const signal = data?.signal || 'NEUTRAL';
+  const confidence = data?.confidence ?? 0;
+  const buyMet = conditions.buy_conditions_met ?? 0;
+  const sellMet = conditions.sell_conditions_met ?? 0;
   const whaleDelta = conditions.whale_delta ?? {};
 
   const getSignalStyle = () => {
@@ -55,158 +60,186 @@ export default function SignalsPage() {
     { label: 'Whales Closing LONG', value: conditions.whale_closing_long ? 'YES' : 'NO', met: conditions.whale_closing_long, threshold: 'Longs ↓ 10%+' },
   ];
 
-  const history = historyData?.history ?? [];
-
-  const getSignalBadge = (s: string) => {
-    if (s.includes('STRONG BUY')) return 'bg-[#059669] text-white';
-    if (s.includes('WEAK BUY')) return 'bg-[#34d399] text-[#0d0d1a]';
-    if (s.includes('STRONG SELL')) return 'bg-[#DC2626] text-white';
-    if (s.includes('WEAK SELL')) return 'bg-[#f87171] text-[#0d0d1a]';
-    return 'bg-[#4a4a6a] text-white';
+  const getConfidenceDisplay = () => {
+    if (confidence === 0) return { value: '—', label: 'No signal — waiting for confirmation', bar: 0 };
+    if (confidence < 30) return { value: `${confidence}%`, label: 'Weak signal — needs more confirmation', bar: confidence };
+    if (confidence < 70) return { value: `${confidence}%`, label: 'Moderate signal — partial confirmation', bar: confidence };
+    return { value: `${confidence}%`, label: 'Strong signal — high confidence', bar: confidence };
   };
 
-  if (isLoading) return <div className="bg-[#0d0d1a] p-5 rounded-2xl border border-[rgba(255,255,255,0.06)] animate-pulse h-96"/>;
+  const conf = getConfidenceDisplay();
+
+  const getSignalHistoryStyle = (s: string) => {
+    if (s.includes('STRONG BUY')) return 'text-[#059669] bg-[rgba(5,150,105,0.15)]';
+    if (s.includes('WEAK BUY')) return 'text-[#34d399] bg-[rgba(52,211,153,0.1)]';
+    if (s.includes('STRONG SELL')) return 'text-[#DC2626] bg-[rgba(220,38,38,0.15)]';
+    if (s.includes('WEAK SELL')) return 'text-[#f87171] bg-[rgba(248,113,113,0.1)]';
+    return 'text-[#C9A227] bg-[rgba(201,162,39,0.1)]';
+  };
 
   return (
-    <div className="space-y-4">
-      {/* Current Signal */}
-      <div className={`p-6 rounded-2xl border ${style.bg} ${style.border}`}>
-        <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4a4a6a] mb-4">Current Signal</div>
-        <div className="flex items-center justify-between mb-2">
+    <div className="min-h-screen bg-[#050510] text-white pb-24">
+      <Toaster position="top-center" richColors />
+      
+      {/* Header */}
+      <div className="px-4 pt-4 pb-2">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-[#C9A227] flex items-center justify-center">
+            <span className="text-[14px]">⚡</span>
+          </div>
           <div>
-            <div className={`text-[36px] font-bold ${style.color}`}>{style.emoji} {signal}</div>
-            <div className="text-[13px] text-[#4a4a6a] mt-1">BTC Price: <span className="text-white font-mono font-bold">{fmt(data?.btc_price ?? 0)}</span></div>
+            <h1 className="text-[16px] font-bold text-white leading-tight">HyperFlow</h1>
+            <p className="text-[10px] text-[#4a4a6a]">Smart Money Tracker</p>
           </div>
-          <div className="text-right">
-            <div className="text-[12px] text-[#4a4a6a]">BUY conditions</div>
-            <div className="text-[28px] font-bold text-[#059669]">{buyMet}/3</div>
+          <div className="ml-auto flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-[#059669] animate-pulse" />
+            <span className="text-[10px] text-[#4a4a6a]">LIVE</span>
           </div>
-        </div>
-        <div className="text-[11px] text-[#4a4a6a]">Updated: {data?.timestamp ? new Date(data.timestamp).toLocaleTimeString() : '--'}</div>
-      </div>
-
-      {/* Confidence Score */}
-      <div className="bg-[#0d0d1a] p-5 rounded-2xl border border-[rgba(255,255,255,0.06)]">
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4a4a6a]">Confidence Score</div>
-          <div className={`text-[20px] font-bold ${style.color}`}>{confidence === 0 ? "—" : `${confidence}%`}</div>
-        </div>
-        <div className="h-2 bg-[#1a1a2e] rounded-full overflow-hidden">
-          <div className={`h-full ${style.bar} rounded-full transition-all duration-500`} style={{width: `${confidence === 0 ? "—" : `${confidence}%`}`}}/>
-        </div>
-        <div className="text-[11px] text-[#4a4a6a] mt-2">
-          {confidence >= 100 ? 'Maximum confidence — all conditions met.' :
-           confidence >= 66 ? 'Strong signal — most conditions met.' :
-           confidence >= 33 ? 'Moderate signal — some conditions met.' :
-           'No signal — conditions inactive.'}
         </div>
       </div>
 
-      {/* Whale Delta Info */}
-      {whaleDelta.has_history && (
+      <div className="px-4 space-y-4 mt-2">
+        {/* Current Signal */}
+        <div className={`p-5 rounded-2xl border ${style.bg} ${style.border}`}>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4a4a6a] mb-2">Current Signal</div>
+          <div className="flex items-center gap-3">
+            <span className="text-[28px]">{style.emoji}</span>
+            <div>
+              <div className={`text-[22px] font-bold ${style.color}`}>{signal}</div>
+              <div className="text-[12px] text-[#4a4a6a]">BTC Price ${conditions.btc_price?.toLocaleString()}</div>
+            </div>
+            <div className="ml-auto text-right">
+              <div className="text-[11px] text-[#4a4a6a]">BUY conditions</div>
+              <div className="text-[18px] font-bold text-[#059669]">{buyMet}/3</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Confidence Score */}
         <div className="bg-[#0d0d1a] p-4 rounded-2xl border border-[rgba(255,255,255,0.06)]">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4a4a6a] mb-3">Whale Position Delta (24h)</div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-[#1a1a2e] p-3 rounded-xl">
-              <div className="text-[11px] text-[#4a4a6a]">Short Delta</div>
-              <div className={`text-[16px] font-bold font-mono ${whaleDelta.short_delta_pct < 0 ? 'text-[#059669]' : whaleDelta.short_delta_pct > 0 ? 'text-[#DC2626]' : 'text-[#4a4a6a]'}`}>
-                {whaleDelta.short_delta_pct > 0 ? '+' : ''}{whaleDelta.short_delta_pct}%
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4a4a6a]">Confidence Score</div>
+            <div className={`text-[16px] font-bold ${confidence > 0 ? style.color : 'text-[#4a4a6a]'}`}>{conf.value}</div>
+          </div>
+          <div className="w-full h-2 bg-[#1a1a2e] rounded-full overflow-hidden">
+            <div className={`h-full ${style.bar} transition-all duration-500`} style={{ width: `${conf.bar}%` }} />
+          </div>
+          <div className="text-[10px] text-[#4a4a6a] mt-1.5">{conf.label}</div>
+        </div>
+
+        {/* Whale Position Delta - FIXED */}
+        {whaleDelta.has_history && (
+          <div className="bg-[#0d0d1a] p-4 rounded-2xl border border-[rgba(255,255,255,0.06)]">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4a4a6a] mb-3">Whale Position Delta (24h)</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-[#1a1a2e] p-3 rounded-xl">
+                <div className="text-[11px] text-[#4a4a6a]">Short Delta</div>
+                <div className={`text-[16px] font-bold font-mono ${whaleDelta.short_delta_pct < 0 ? 'text-[#059669]' : whaleDelta.short_delta_pct > 0 ? 'text-[#DC2626]' : 'text-[#4a4a6a]'}`}>
+                  {whaleDelta.short_delta_pct > 0 ? '+' : ''}{whaleDelta.short_delta_pct}%
+                </div>
+                <div className="text-[10px] text-[#4a4a6a] mt-1">
+                  {whaleDelta.short_delta_pct < -10 ? 'Closing shorts 🟢' : whaleDelta.short_delta_pct > 10 ? 'Adding shorts 🔴' : whaleDelta.short_delta_pct < 0 ? 'Slightly reducing ↘️' : whaleDelta.short_delta_pct > 0 ? 'Slightly adding ↗️' : 'No change ➡️'}
+                </div>
               </div>
-              <div className="text-[10px] text-[#4a4a6a] mt-1">
-                {whaleDelta.short_delta_pct < -10 ? 'Closing shorts 🟢' : whaleDelta.short_delta_pct > 10 ? 'Adding shorts 🔴' : whaleDelta.short_delta_pct < 0 ? 'Slightly reducing ↘️' : whaleDelta.short_delta_pct > 0 ? 'Slightly adding ↗️' : whaleDelta.long_delta_pct < 0 ? 'Slightly reducing ↘️' : whaleDelta.long_delta_pct > 0 ? 'Slightly adding ↗️' : 'No change'}
-              </div>
-            </div>
-            <div className="bg-[#1a1a2e] p-3 rounded-xl">
-              <div className="text-[11px] text-[#4a4a6a]">Long Delta</div>
-              <div className={`text-[16px] font-bold font-mono ${whaleDelta.long_delta_pct < 0 ? 'text-[#DC2626]' : whaleDelta.long_delta_pct > 0 ? 'text-[#059669]' : 'text-[#4a4a6a]'}`}>
-                {whaleDelta.long_delta_pct > 0 ? '+' : ''}{whaleDelta.long_delta_pct}%
-              </div>
-              <div className="text-[10px] text-[#4a4a6a] mt-1">
-                {whaleDelta.long_delta_pct < -10 ? 'Closing longs 🔴' : whaleDelta.long_delta_pct > 10 ? 'Adding longs 🟢' : whaleDelta.short_delta_pct < 0 ? 'Slightly reducing ↘️' : whaleDelta.short_delta_pct > 0 ? 'Slightly adding ↗️' : whaleDelta.long_delta_pct < 0 ? 'Slightly reducing ↘️' : whaleDelta.long_delta_pct > 0 ? 'Slightly adding ↗️' : 'No change'}
+              <div className="bg-[#1a1a2e] p-3 rounded-xl">
+                <div className="text-[11px] text-[#4a4a6a]">Long Delta</div>
+                <div className={`text-[16px] font-bold font-mono ${whaleDelta.long_delta_pct < 0 ? 'text-[#DC2626]' : whaleDelta.long_delta_pct > 0 ? 'text-[#059669]' : 'text-[#4a4a6a]'}`}>
+                  {whaleDelta.long_delta_pct > 0 ? '+' : ''}{whaleDelta.long_delta_pct}%
+                </div>
+                <div className="text-[10px] text-[#4a4a6a] mt-1">
+                  {whaleDelta.long_delta_pct < -10 ? 'Closing longs 🔴' : whaleDelta.long_delta_pct > 10 ? 'Adding longs 🟢' : whaleDelta.long_delta_pct < 0 ? 'Slightly reducing ↘️' : whaleDelta.long_delta_pct > 0 ? 'Slightly adding ↗️' : 'No change ➡️'}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* BUY Conditions */}
-      <div className="bg-[#0d0d1a] p-5 rounded-2xl border border-[rgba(255,255,255,0.06)]">
-        <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#059669] mb-4">🟢 BUY Conditions ({buyMet}/3)</h2>
-        <div className="space-y-3">
-          {buyConditions.map((c, i) => (
-            <div key={i} className={`p-3 rounded-xl border ${c.met ? 'bg-[rgba(5,150,105,0.1)] border-[rgba(5,150,105,0.3)]' : 'bg-[#1a1a2e] border-[rgba(255,255,255,0.04)]'}`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-[13px] font-semibold text-white">{c.met ? '✅' : '❌'} {c.label}</div>
-                  <div className="text-[11px] text-[#4a4a6a] mt-0.5">Threshold: {c.threshold}</div>
-                </div>
-                <div className={`text-[14px] font-bold font-mono ${c.met ? 'text-[#059669]' : 'text-[#4a4a6a]'}`}>{c.value}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* SELL Conditions */}
-      <div className="bg-[#0d0d1a] p-5 rounded-2xl border border-[rgba(255,255,255,0.06)]">
-        <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#DC2626] mb-4">🔴 SELL Conditions ({sellMet}/3)</h2>
-        <div className="space-y-3">
-          {sellConditions.map((c, i) => (
-            <div key={i} className={`p-3 rounded-xl border ${c.met ? 'bg-[rgba(220,38,38,0.1)] border-[rgba(220,38,38,0.3)]' : 'bg-[#1a1a2e] border-[rgba(255,255,255,0.04)]'}`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-[13px] font-semibold text-white">{c.met ? '✅' : '❌'} {c.label}</div>
-                  <div className="text-[11px] text-[#4a4a6a] mt-0.5">Threshold: {c.threshold}</div>
-                </div>
-                <div className={`text-[14px] font-bold font-mono ${c.met ? 'text-[#DC2626]' : 'text-[#4a4a6a]'}`}>{c.value}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Signal History Toggle */}
-      <button
-        onClick={() => setShowHistory(!showHistory)}
-        className="w-full bg-[#1a1a2e] hover:bg-[#252540] text-white text-[13px] font-semibold py-3 px-5 rounded-2xl border border-[rgba(255,255,255,0.06)] transition-colors flex items-center justify-between"
-      >
-        <span>📜 Signal History ({history.length})</span>
-        <span className="text-[#4a4a6a]">{showHistory ? '▲' : '▼'}</span>
-      </button>
-
-      {/* Signal History List */}
-      {showHistory && (
-        <div className="bg-[#0d0d1a] rounded-2xl border border-[rgba(255,255,255,0.06)] overflow-hidden">
-          {history.length === 0 ? (
-            <div className="p-5 text-center text-[#4a4a6a] text-[13px]">No history yet. Signals will be saved automatically.</div>
-          ) : (
-            <div className="max-h-[400px] overflow-y-auto">
-              {history.map((h: any) => (
-                <div key={h.id} className="flex items-center justify-between p-4 border-b border-[rgba(255,255,255,0.04)] hover:bg-[#1a1a2e]">
-                  <div className="flex items-center gap-3">
-                    <span className={`text-[10px] font-bold px-2 py-1 rounded-md ${getSignalBadge(h.signal)}`}>{h.signal}</span>
-                    <div>
-                      <div className="text-[13px] text-white font-mono">{fmt(h.btc_price)}</div>
-                      <div className="text-[11px] text-[#4a4a6a]">{new Date(h.timestamp).toLocaleString()}</div>
-                    </div>
+        {/* BUY Conditions */}
+        <div className="bg-[#0d0d1a] p-5 rounded-2xl border border-[rgba(255,255,255,0.06)]">
+          <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#059669] mb-4">🟢 BUY Conditions ({buyMet}/3)</h2>
+          <div className="space-y-3">
+            {buyConditions.map((c, i) => (
+              <div key={i} className={`p-3 rounded-xl border ${c.met ? 'bg-[rgba(5,150,105,0.1)] border-[rgba(5,150,105,0.3)]' : 'bg-[#1a1a2e] border-[rgba(255,255,255,0.04)]'}`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[13px] font-semibold text-white">{c.met ? '✅' : '❌'} {c.label}</div>
+                    <div className="text-[11px] text-[#4a4a6a] mt-0.5">Threshold: {c.threshold}</div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-[12px] text-[#4a4a6a]">WSI: <span className="text-white font-mono">{h.wsi}</span></div>
-                    <div className="text-[12px] text-[#4a4a6a]">Conf: <span className={`font-bold ${h.confidence >= 66 ? 'text-[#059669]' : h.confidence >= 33 ? 'text-[#C9A227]' : 'text-[#4a4a6a]'}`}>{h.confidence}%</span></div>
+                  <div className={`text-[14px] font-bold font-mono ${c.met ? 'text-[#059669]' : 'text-[#4a4a6a]'}`}>{c.value}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* SELL Conditions */}
+        <div className="bg-[#0d0d1a] p-5 rounded-2xl border border-[rgba(255,255,255,0.06)]">
+          <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#DC2626] mb-4">🔴 SELL Conditions ({sellMet}/3)</h2>
+          <div className="space-y-3">
+            {sellConditions.map((c, i) => (
+              <div key={i} className={`p-3 rounded-xl border ${c.met ? 'bg-[rgba(220,38,38,0.1)] border-[rgba(220,38,38,0.3)]' : 'bg-[#1a1a2e] border-[rgba(255,255,255,0.04)]'}`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[13px] font-semibold text-white">{c.met ? '✅' : '❌'} {c.label}</div>
+                    <div className="text-[11px] text-[#4a4a6a] mt-0.5">Threshold: {c.threshold}</div>
+                  </div>
+                  <div className={`text-[14px] font-bold font-mono ${c.met ? 'text-[#DC2626]' : 'text-[#4a4a6a]'}`}>{c.value}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Signal History */}
+        <div className="bg-[#0d0d1a] rounded-2xl border border-[rgba(255,255,255,0.06)] overflow-hidden">
+          <button 
+            onClick={() => setShowHistory(!showHistory)}
+            className="w-full p-4 flex items-center justify-between text-left"
+          >
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4a4a6a]">📋 Signal History</div>
+              <div className="text-[10px] text-[#4a4a6a] mt-0.5">({historyData?.history?.length ?? 0}) entries</div>
+            </div>
+            <span className="text-[#4a4a6a]">{showHistory ? '▲' : '▼'}</span>
+          </button>
+          
+          {showHistory && historyData?.history && (
+            <div className="px-4 pb-4 space-y-2 max-h-[400px] overflow-y-auto">
+              {historyData.history.map((h: any, i: number) => (
+                <div key={i} className="p-3 rounded-xl bg-[#1a1a2e] border border-[rgba(255,255,255,0.04)]">
+                  <div className="flex items-center justify-between">
+                    <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${getSignalHistoryStyle(h.signal)}`}>{h.signal}</span>
+                    <span className="text-[10px] text-[#4a4a6a]">{h.btc_price?.toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center justify-between mt-1.5">
+                    <span className="text-[10px] text-[#4a4a6a]">{new Date(h.timestamp).toLocaleString()}</span>
+                    <span className="text-[10px] text-[#4a4a6a]">WSI: {h.wsi} | Conf: {h.confidence}%</span>
                   </div>
                 </div>
               ))}
             </div>
           )}
         </div>
-      )}
 
-      <div className="bg-[#0d0d1a] p-4 rounded-2xl border border-[rgba(255,255,255,0.06)]">
-        <p className="text-[11px] text-[#4a4a6a] leading-relaxed">
-          <span className="text-[#059669] font-bold">STRONG BUY</span> = 3/3 conditions met.
-          <span className="text-[#34d399] font-bold"> WEAK BUY</span> = 2/3 conditions met.
-          Recommended Timeframe: 4H / Daily. Signals update every 30 seconds. Based on smart money whale wallets on Hyperliquid.
-        </p>
+        {/* Legend */}
+        <div className="p-4 rounded-2xl bg-[#0d0d1a] border border-[rgba(255,255,255,0.06)]">
+          <div className="text-[10px] text-[#4a4a6a] leading-relaxed">
+            <span className="text-[#059669] font-semibold">STRONG BUY</span> — 3/3 conditions met. 
+            <span className="text-[#34d399] font-semibold"> WEAK BUY</span> — 2/3 conditions met. 
+            Recommended Timeframe: 4H / Daily. Signals update every 30 seconds. Based on smart money whale wallets on Hyperliquid.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen bg-[#050510] flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-12 h-12 border-2 border-[#C9A227] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <div className="text-[14px] text-[#4a4a6a]">Loading signals...</div>
       </div>
     </div>
   );
