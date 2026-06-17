@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 
@@ -37,6 +37,7 @@ export default function SignalsPage() {
   const buyMet = conditions.buy_conditions_met ?? 0;
   const sellMet = conditions.sell_conditions_met ?? 0;
   const whaleDelta = conditions.whale_delta ?? {};
+  const whaleConviction = conditions.whale_conviction ?? {};
 
   const getSignalStyle = () => {
     if (signal.includes('STRONG BUY')) return { color: 'text-[#059669]', bg: 'bg-[rgba(5,150,105,0.15)]', border: 'border-[rgba(5,150,105,0.4)]', emoji: '🟢', bar: 'bg-[#059669]' };
@@ -77,11 +78,17 @@ export default function SignalsPage() {
     return 'text-[#C9A227] bg-[rgba(201,162,39,0.1)]';
   };
 
+  const getConvictionColor = (level: string) => {
+    if (level === 'STRONG') return 'text-[#059669]';
+    if (level === 'WEAKENING') return 'text-[#C9A227]';
+    if (level === 'REVERSING') return 'text-[#DC2626]';
+    return 'text-[#4a4a6a]';
+  };
+
   return (
     <div className="min-h-screen bg-[#050510] text-white pb-24">
       <Toaster position="top-center" richColors />
       
-      {/* Header */}
       <div className="px-4 pt-4 pb-2">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-[#C9A227] flex items-center justify-center">
@@ -127,7 +134,49 @@ export default function SignalsPage() {
           <div className="text-[10px] text-[#4a4a6a] mt-1.5">{conf.label}</div>
         </div>
 
-        {/* Whale Position Delta - FIXED */}
+        {/* Whale Conviction Meter - NEW */}
+        {whaleConviction.hold_time_days && (
+          <div className="bg-[#0d0d1a] p-4 rounded-2xl border border-[rgba(255,255,255,0.06)]">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4a4a6a] mb-3">🐋 Whale Conviction</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-[#1a1a2e] p-3 rounded-xl">
+                <div className="text-[10px] text-[#4a4a6a]">Direction Hold Time</div>
+                <div className="text-[16px] font-bold text-white">{whaleConviction.hold_time_days} days</div>
+                <div className="text-[10px] text-[#4a4a6a] mt-1">Since {whaleConviction.direction_since}</div>
+              </div>
+              <div className="bg-[#1a1a2e] p-3 rounded-xl">
+                <div className="text-[10px] text-[#4a4a6a]">Unrealized PnL</div>
+                <div className={`text-[16px] font-bold ${whaleConviction.unrealized_pnl_pct >= 0 ? 'text-[#059669]' : 'text-[#DC2626]'}`}>
+                  {whaleConviction.unrealized_pnl_pct > 0 ? '+' : ''}{whaleConviction.unrealized_pnl_pct}%
+                </div>
+                <div className="text-[10px] text-[#4a4a6a] mt-1">
+                  {whaleConviction.pnl_status}
+                </div>
+              </div>
+            </div>
+            <div className="mt-3 p-3 rounded-xl bg-[#1a1a2e]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-[10px] text-[#4a4a6a]">Conviction Level</div>
+                  <div className={`text-[14px] font-bold ${getConvictionColor(whaleConviction.level)}`}>
+                    {whaleConviction.level}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[10px] text-[#4a4a6a]">Recent Action</div>
+                  <div className="text-[12px] text-white">{whaleConviction.recent_action}</div>
+                </div>
+              </div>
+              <div className="mt-2 text-[10px] text-[#4a4a6a] leading-relaxed">
+                {whaleConviction.level === 'STRONG' && 'Whales holding firm. Trend likely continues.'}
+                {whaleConviction.level === 'WEAKENING' && 'Some profit-taking detected. Watch for reversal signs.'}
+                {whaleConviction.level === 'REVERSING' && 'Whales changing direction. Reversal may be near.'}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Whale Position Delta */}
         {whaleDelta.has_history && (
           <div className="bg-[#0d0d1a] p-4 rounded-2xl border border-[rgba(255,255,255,0.06)]">
             <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4a4a6a] mb-3">Whale Position Delta (24h)</div>
