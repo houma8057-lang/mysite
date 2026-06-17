@@ -11,6 +11,7 @@ import ReversalScoreCard from "./components/ReversalScoreCard";
 import MarketContextCard from "./components/MarketContextCard";
 import FundingRateCard from "./components/FundingRateCard";
 import OIDivergenceCard from './components/OIDivergenceCard';
+import RegimeCard from './components/RegimeCard';
 import WalletManager from './components/WalletManager';
 import PositionTable from './components/PositionTable';
 import ReversalAlert from './components/ReversalAlert';
@@ -44,10 +45,12 @@ function LoadingScreen() {
 function DashboardPage() {
   const { data: s, isLoading: ls } = useQuery({ queryKey: ['sentiment'], queryFn: api.getSentiment, refetchInterval: 10000 });
   const { data: h, isLoading: lh } = useQuery({ queryKey: ['history'], queryFn: () => api.getHistory(30), refetchInterval: 60000 });
+  const { data: regime, isLoading: lr } = useQuery({ queryKey: ['regime'], queryFn: api.getRegime, refetchInterval: 30000 });
   return (
     <div className="space-y-4">
       <ReversalScoreCard />
       <MarketContextCard />
+      {lr ? <Skeleton h="h-64" /> : <RegimeCard data={regime ?? { regime: 'NEUTRAL', score: 0, confidence: 0, active_dimensions: 0, dimensions: {}, raw_wsi: 0, timestamp: '', recommendation: 'NEUTRAL — Loading...' }} />}
       {ls ? <Skeleton h="h-72" /> : <SentimentGauge wsi={s?.wsi??0} longPct={s?.long_pct??0} shortPct={s?.short_pct??0} totalNtl={s?.total_ntl??0} />}
       {lh ? <Skeleton h="h-[300px]" /> : <WSIHistoryChart data={h??[]} />}
       <div className="grid grid-cols-2 gap-4"><DryPowderGauge /><OIDivergenceCard /></div>
@@ -59,7 +62,6 @@ function DashboardPage() {
 
 const NAV = [
   { id:'dashboard' as Tab, label:'Dashboard', Icon:BarChart2 },
-  
   { id:'positions' as Tab, label:'Positions', Icon:Activity },
   { id:'signals' as Tab, label:'Signals', Icon:Activity },
   { id:'settings' as Tab, label:'Settings', Icon:Settings },
@@ -114,7 +116,6 @@ export default function App() {
           </nav>
           <main className="lg:col-span-3">
             {tab==='dashboard' && <DashboardPage />}
-            
             {tab==='positions' && <PositionTable />}
             {tab==='signals' && <SignalsPage />}
             {tab==='settings' && <SettingsPage />}
