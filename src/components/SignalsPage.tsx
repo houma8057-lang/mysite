@@ -15,6 +15,7 @@ export default function SignalsPage() {
       return res.json();
     },
     refetchInterval: 60000,
+    staleTime: 300000,
     enabled: true,
   });
 
