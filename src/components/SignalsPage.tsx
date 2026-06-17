@@ -23,8 +23,7 @@ export default function SignalsPage() {
       const res = await fetch(`${API}/signals/history`);
       return res.json();
     },
-    refetchInterval: 60000,
-    enabled: showHistory
+    refetchInterval: 60000
   });
 
   const signal = data?.signal ?? 'LOADING';
