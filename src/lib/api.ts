@@ -20,6 +20,7 @@ const DEFAULTS = {
   liquidity: { dry_powder_pct: 35.2, total_oi: 0, total_volume: 0, oi_volume_ratio: 1.0 },
   settings: { alert_threshold: 0.60 },
   wallets: [],
+  regime: { regime: 'NEUTRAL', score: 0, confidence: 0, active_dimensions: 0, dimensions: {}, raw_wsi: 0, timestamp: '', recommendation: 'NEUTRAL — Loading...' },
 };
 
 export const api = {
@@ -44,4 +45,5 @@ export const api = {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   }).then(r => r.json()),
+  getRegime: () => fetchWithFallback(`${API_BASE}/api/regime/current`, DEFAULTS.regime),
 };
