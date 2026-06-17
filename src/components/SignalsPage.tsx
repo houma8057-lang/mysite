@@ -89,16 +89,16 @@ export default function SignalsPage() {
       <div className="bg-[#0d0d1a] p-5 rounded-2xl border border-[rgba(255,255,255,0.06)]">
         <div className="flex items-center justify-between mb-3">
           <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4a4a6a]">Confidence Score</div>
-          <div className={`text-[20px] font-bold ${style.color}`}>{confidence}%</div>
+          <div className={`text-[20px] font-bold ${style.color}`}>{confidence === 0 ? "—" : `${confidence}%`}</div>
         </div>
         <div className="h-2 bg-[#1a1a2e] rounded-full overflow-hidden">
-          <div className={`h-full ${style.bar} rounded-full transition-all duration-500`} style={{width: `${confidence}%`}}/>
+          <div className={`h-full ${style.bar} rounded-full transition-all duration-500`} style={{width: `${confidence === 0 ? "—" : `${confidence}%`}`}}/>
         </div>
         <div className="text-[11px] text-[#4a4a6a] mt-2">
           {confidence >= 100 ? 'Maximum confidence — all conditions met.' :
            confidence >= 66 ? 'Strong signal — most conditions met.' :
            confidence >= 33 ? 'Moderate signal — some conditions met.' :
-           'Weak signal — waiting for more confirmation.'}
+           'No signal — conditions inactive.'}
         </div>
       </div>
 
