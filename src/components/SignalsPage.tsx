@@ -113,7 +113,7 @@ export default function SignalsPage() {
                 {whaleDelta.short_delta_pct > 0 ? '+' : ''}{whaleDelta.short_delta_pct}%
               </div>
               <div className="text-[10px] text-[#4a4a6a] mt-1">
-                {whaleDelta.short_delta_pct < -10 ? 'Closing shorts 🟢' : whaleDelta.short_delta_pct > 10 ? 'Adding shorts 🔴' : 'No change'}
+                {whaleDelta.short_delta_pct < -10 ? 'Closing shorts 🟢' : whaleDelta.short_delta_pct > 10 ? 'Adding shorts 🔴' : whaleDelta.short_delta_pct < 0 ? 'Slightly reducing ↘️' : whaleDelta.short_delta_pct > 0 ? 'Slightly adding ↗️' : whaleDelta.long_delta_pct < 0 ? 'Slightly reducing ↘️' : whaleDelta.long_delta_pct > 0 ? 'Slightly adding ↗️' : 'No change'}
               </div>
             </div>
             <div className="bg-[#1a1a2e] p-3 rounded-xl">
@@ -122,7 +122,7 @@ export default function SignalsPage() {
                 {whaleDelta.long_delta_pct > 0 ? '+' : ''}{whaleDelta.long_delta_pct}%
               </div>
               <div className="text-[10px] text-[#4a4a6a] mt-1">
-                {whaleDelta.long_delta_pct < -10 ? 'Closing longs 🔴' : whaleDelta.long_delta_pct > 10 ? 'Adding longs 🟢' : 'No change'}
+                {whaleDelta.long_delta_pct < -10 ? 'Closing longs 🔴' : whaleDelta.long_delta_pct > 10 ? 'Adding longs 🟢' : whaleDelta.short_delta_pct < 0 ? 'Slightly reducing ↘️' : whaleDelta.short_delta_pct > 0 ? 'Slightly adding ↗️' : whaleDelta.long_delta_pct < 0 ? 'Slightly reducing ↘️' : whaleDelta.long_delta_pct > 0 ? 'Slightly adding ↗️' : 'No change'}
               </div>
             </div>
           </div>
