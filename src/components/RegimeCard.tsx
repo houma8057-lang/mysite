@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { TrendingUp, TrendingDown, Activity, AlertTriangle, Zap, Target } from 'lucide-react';
+import { TrendingUp, TrendingDown, Activity, AlertTriangle, Zap, Target, Shield, BarChart3 } from 'lucide-react';
 
 interface Dimension {
   active: boolean;
@@ -11,12 +11,14 @@ interface Dimension {
 interface RegimeData {
   regime: string;
   score: number;
-  confidence: number;
+  data_completeness: number;
+  signal_confidence: number;
   active_dimensions: number;
   dimensions: Record<string, Dimension>;
   raw_wsi: number;
   timestamp: string;
   recommendation: string;
+  warnings?: string[];
 }
 
 interface Props {
@@ -48,13 +50,16 @@ export default function RegimeCard({ data }: Props) {
   const label = REGIME_LABELS[data.regime] || data.regime;
 
   const scoreBar = useMemo(() => {
-    // Map score from [-1, 1] to [0, 100]%
     const pct = Math.max(0, Math.min(100, (data.score + 1) * 50));
     return pct;
   }, [data.score]);
 
   const activeDims = useMemo(() => {
     return Object.entries(data.dimensions || {}).filter(([_, d]) => d.active);
+  }, [data.dimensions]);
+
+  const inactiveDims = useMemo(() => {
+    return Object.entries(data.dimensions || {}).filter(([_, d]) => !d.active);
   }, [data.dimensions]);
 
   const dimIcon = (key: string) => {
@@ -96,9 +101,23 @@ export default function RegimeCard({ data }: Props) {
               {label}
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-[10px] font-medium text-[#4a4a6a] uppercase tracking-[0.05em]">Confidence</div>
-            <div className="text-[18px] font-bold font-mono text-white">{data.confidence}%</div>
+          <div className="text-right space-y-1">
+            <div>
+              <div className="flex items-center gap-1 justify-end">
+                <Shield className="w-3 h-3 text-[#4a4a6a]" />
+                <span className="text-[10px] font-medium text-[#4a4a6a] uppercase tracking-[0.05em]">Data</span>
+              </div>
+              <div className="text-[14px] font-bold font-mono text-white">{data.data_completeness || 0}%</div>
+            </div>
+            <div>
+              <div className="flex items-center gap-1 justify-end">
+                <BarChart3 className="w-3 h-3 text-[#4a4a6a]" />
+                <span className="text-[10px] font-medium text-[#4a4a6a] uppercase tracking-[0.05em]">Signal</span>
+              </div>
+              <div className={`text-[14px] font-bold font-mono ${(data.signal_confidence || 0) > 50 ? 'text-[#C9A227]' : 'text-[#4a4a6a]'}`}>
+                {data.signal_confidence || 0}%
+              </div>
+            </div>
           </div>
         </div>
 
@@ -116,6 +135,18 @@ export default function RegimeCard({ data }: Props) {
           />
         </div>
 
+        {/* Warnings */}
+        {data.warnings && data.warnings.length > 0 && (
+          <div className="mb-4 space-y-1">
+            {data.warnings.map((warning, i) => (
+              <div key={i} className="flex items-start gap-2 bg-[rgba(201,162,39,0.1)] border border-[rgba(201,162,39,0.2)] rounded-lg px-3 py-2">
+                <AlertTriangle className="w-3 h-3 text-[#C9A227] mt-0.5 shrink-0" />
+                <span className="text-[11px] text-[#C9A227]">{warning}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Recommendation */}
         <div className="bg-[rgba(255,255,255,0.03)] rounded-xl px-4 py-3 mb-4">
           <div className="text-[10px] font-medium text-[#4a4a6a] uppercase tracking-[0.05em] mb-1">Recommendation</div>
@@ -125,7 +156,7 @@ export default function RegimeCard({ data }: Props) {
         {/* Raw WSI Reference */}
         <div className="flex items-center justify-between text-[11px] text-[#4a4a6a] mb-3">
           <span>Legacy WSI: <span className="font-mono text-white">{data.raw_wsi >= 0 ? '+' : ''}{data.raw_wsi.toFixed(3)}</span></span>
-          <span>{data.active_dimensions >= 3 ? '✓ Regime active' : '⚠ Building data'}</span>
+          <span>{(data.data_completeness || 0) >= 75 ? '✓ Sufficient data' : '⚠ Building data'}</span>
         </div>
 
         {/* Active Dimensions */}
@@ -147,6 +178,16 @@ export default function RegimeCard({ data }: Props) {
                     </span>
                   </div>
                   <div className="text-[10px] text-[#4a4a6a] truncate">{dim.label}</div>
+                  {/* Show time span for Position Extremity */}
+                  {key === 'position_extremity' && dim.time_span_days && (
+                    <div className="text-[9px] text-[#4a4a6a]">{dim.time_span_days} days of history</div>
+                  )}
+                  {/* Show wallet details for Dry Powder */}
+                  {key === 'wallet_dry_powder' && dim.wallet_details && (
+                    <div className="text-[9px] text-[#4a4a6a] mt-1">
+                      Top wallet util: {dim.wallet_details[0]?.utilization || 'N/A'}x
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -154,18 +195,16 @@ export default function RegimeCard({ data }: Props) {
         )}
 
         {/* Inactive Dimensions */}
-        {Object.entries(data.dimensions || {}).filter(([_, d]) => !d.active).length > 0 && (
+        {inactiveDims.length > 0 && (
           <div className="mt-3 space-y-1">
             <div className="text-[10px] font-medium text-[#4a4a6a] uppercase tracking-[0.05em]">Building Data</div>
-            {Object.entries(data.dimensions || {})
-              .filter(([_, d]) => !d.active)
-              .map(([key, dim]) => (
-                <div key={key} className="flex items-center gap-2 px-3 py-1.5 opacity-50">
-                  <span className="text-[#4a4a6a]">{dimIcon(key)}</span>
-                  <span className="text-[11px] text-[#4a4a6a]">{dimName(key)}</span>
-                  <span className="text-[10px] text-[#4a4a6a] ml-auto">{dim.label}</span>
-                </div>
-              ))}
+            {inactiveDims.map(([key, dim]) => (
+              <div key={key} className="flex items-center gap-2 px-3 py-1.5 opacity-50">
+                <span className="text-[#4a4a6a]">{dimIcon(key)}</span>
+                <span className="text-[11px] text-[#4a4a6a]">{dimName(key)}</span>
+                <span className="text-[10px] text-[#4a4a6a] ml-auto">{dim.label}</span>
+              </div>
+            ))}
           </div>
         )}
       </div>
