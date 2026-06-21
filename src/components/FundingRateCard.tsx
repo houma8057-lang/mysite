@@ -42,7 +42,7 @@ export default function FundingRateCard() {
     <div className="bg-[#0d0d1a] p-5 rounded-2xl border border-[rgba(255,255,255,0.06)] shadow-lg">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4a4a6a]">Funding Rate Monitor</h2>
-        <span className="text-[10px] text-[#4a4a6a]">per 8h · live</span>
+        <span className="text-[10px] text-[#4a4a6a]">per 1h · live</span>
       </div>
       <div className="space-y-3">
         {rates.map((r) => {
