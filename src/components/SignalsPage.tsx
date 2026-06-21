@@ -35,8 +35,8 @@ export default function SignalsPage() {
   const conditions = data?.conditions || {};
   const signal = data?.signal || 'NEUTRAL';
   const confidence = data?.confidence ?? 0;
-  const buyMet = conditions.buy_conditions_met ?? 0;
-  const sellMet = conditions.sell_conditions_met ?? 0;
+  const buyMet = data?.buy_conditions_met ?? 0;
+  const sellMet = data?.sell_conditions_met ?? 0;
   const whaleDelta = conditions.whale_delta ?? {};
   const whaleConviction = conditions.whale_conviction ?? {};
 
