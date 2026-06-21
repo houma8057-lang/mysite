@@ -3,7 +3,7 @@ import { AreaChart,Area,XAxis,YAxis,CartesianGrid,Tooltip,ResponsiveContainer,Re
 import { format } from 'date-fns';
 interface Props { data: { timestamp: string; wsi_value: number }[]; }
 export default function WSIHistoryChart({ data }: Props) {
-  const chartData = useMemo(() => !data?[]:(data.map(d=>({...d,time:format(new Date(d.timestamp),'MMM d HH:mm')}))), [data]);
+  const chartData = useMemo(() => !data ? [] : (data.map(d=>({...d,time:format(new Date(d.timestamp),'MMM d HH:mm')}))), [data]);
   if (!data||data.length<2) return (
     <div className="h-[280px] w-full flex items-center justify-center bg-[#0d0d1a] rounded-2xl border border-[rgba(255,255,255,0.06)]">
       <div className="text-center"><p className="text-[12px] font-medium text-[#4a4a6a] tracking-wider">Collecting 30-day momentum data...</p><p className="text-[11px] text-[#4a4a6a] mt-1">Check back in 5 minutes</p></div>
