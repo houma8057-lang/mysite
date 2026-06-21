@@ -38,9 +38,8 @@ export default function ReversalAlert() {
     : 0;
 
   const rates = funding?.funding_rates ?? [];
-  const avgFunding = rates.length > 0
-    ? rates.reduce((acc: number, r: any) => acc + r.funding_rate, 0) / rates.length
-    : 0;
+  const btcRate = rates.find((r: any) => r.coin === 'BTC');
+  const avgFunding = btcRate ? btcRate.funding_rate : 0;
 
   const conditions = [
     { met: wsi <= -0.8, label: `WSI ${wsi.toFixed(3)}`, desc: 'Extreme SHORT' },
