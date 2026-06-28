@@ -86,7 +86,7 @@ export default function RegimeCard({ data }: Props) {
             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}` }} />
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4a4a6a]">Whale Regime Detector</span>
           </div>
-          <span className="text-[10px] font-mono text-[#4a4a6a]">{data.active_dimensions}/5 active</span>
+          <span className="text-[10px] font-mono text-[#4a4a6a]">{data.active_dimensions}/4 active</span>
         </div>
       </div>
 
