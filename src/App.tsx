@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import ReversalScoreCard from './components/ReversalScoreCard';
+import SentimentGauge from './components/SentimentGauge';
+import { api } from './lib/api';
 
 function LoadingScreen() {
   return (
@@ -24,6 +27,7 @@ function LoadingScreen() {
 
 export default function App() {
   const [loading, setLoading] = useState(true);
+  const { data: sentiment } = useQuery({ queryKey: ['sentiment'], queryFn: api.getSentiment, refetchInterval: 10000 });
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 3000);
@@ -52,8 +56,14 @@ export default function App() {
         </div>
       </header>
 
-      <div className="w-full max-w-6xl mx-auto px-4 pt-4 pb-8">
+      <div className="w-full max-w-6xl mx-auto px-4 pt-4 pb-8 space-y-4">
         <ReversalScoreCard />
+        <SentimentGauge
+          wsi={sentiment?.wsi ?? 0}
+          longPct={sentiment?.long_pct ?? 0}
+          shortPct={sentiment?.short_pct ?? 0}
+          totalNtl={sentiment?.total_ntl ?? 0}
+        />
       </div>
     </div>
   );

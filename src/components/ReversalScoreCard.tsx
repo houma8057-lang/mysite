@@ -28,13 +28,12 @@ export default function ReversalScoreCard() {
   const barPosition = ((score + 100) / 200) * 100;
 
   const componentRows = [
-    { label: 'WSI',        key: 'wsi_score',        weight: '20%', raw: raw.wsi?.toFixed(3) },
-    { label: 'Funding',    key: 'funding_score',     weight: '15%', raw: raw.funding?.toFixed(4) + '%' },
-    { label: 'MVRV Z',     key: 'mvrv_score',        weight: '20%', raw: raw.mvrv_z?.toFixed(3) },
-    { label: 'NUPL',       key: 'nupl_score',        weight: '20%', raw: raw.nupl?.toFixed(3) },
-    { label: 'SOPR',       key: 'sopr_score',        weight: '10%', raw: raw.sopr?.toFixed(3) },
-    { label: 'OI Change',  key: 'oi_change_score',   weight: '10%', raw: raw.oi_change_pct?.toFixed(2) + '%' },
-    { label: 'Whale Flip', key: 'whale_flip_score',  weight: '5%',  raw: raw.whale_flips + ' ' + (raw.flip_dir ?? '') },
+    { label: 'WSI',        key: 'wsi_score' },
+    { label: 'Funding',    key: 'funding_score' },
+    { label: 'MVRV Z',     key: 'mvrv_score' },
+    { label: 'NUPL',       key: 'nupl_score' },
+    { label: 'SOPR',       key: 'sopr_score' },
+    { label: 'OI Change',  key: 'oi_change_score' },
   ];
 
   if (isLoading) return (
@@ -116,19 +115,13 @@ export default function ReversalScoreCard() {
 
         {/* Components */}
         <div className="space-y-1.5">
-          {componentRows.map(({ label, key, weight, raw: rawVal }) => {
+          {componentRows.map(({ label, key }) => {
             const val: number = components[key] ?? 0;
             const isPositive = val > 0;
             const isNegative = val < 0;
             return (
               <div key={key} className="flex items-center justify-between p-2 bg-[#1a1a2e] rounded-xl">
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-[#4a4a6a] w-[80px]">{label}</span>
-                  <span className="text-[9px] text-[#3a3a5a]">{weight}</span>
-                  {rawVal && (
-                    <span className="text-[9px] text-[#3a3a5a] font-mono">{rawVal}</span>
-                  )}
-                </div>
+                <span className="text-[11px] text-[#4a4a6a]">{label}</span>
                 <span className={`text-[11px] font-bold font-mono ${
                   isNegative ? 'text-[#059669]' : isPositive ? 'text-[#DC2626]' : 'text-[#4a4a6a]'
                 }`}>
