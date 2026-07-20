@@ -1,25 +1,29 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import ReversalScoreCard from './components/ReversalScoreCard';
-import SentimentGauge from './components/SentimentGauge';
-import { api } from './lib/api';
+import DepthGauge from './components/DepthGauge';
+
+const COLORS = {
+  bgBase: '#0A0E17',
+  bgCard: '#141B2E',
+  buy: '#00C896',
+  steel: '#5B6B85',
+};
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex flex-col items-center justify-center gap-6">
-      <div className="w-16 h-16 bg-[#C9A227] rounded-2xl flex items-center justify-center">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6" style={{ background: COLORS.bgBase }}>
+      <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: COLORS.buy }}>
         <svg width="32" height="26" viewBox="0 0 18 14" fill="none">
-          <path d="M1 13L6 2L9 8L12 4L17 13" stroke="#0a0a0f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M1 13L6 2L9 8L12 4L17 13" stroke={COLORS.bgBase} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </div>
       <div className="text-center">
-        <div className="text-[24px] font-bold text-white mb-1">HyperFlow</div>
-        <div className="text-[13px] text-[#4a4a6a]">Loading smart money data...</div>
+        <div className="text-[22px] font-bold text-white mb-1 font-mono">HYPERFLOW</div>
+        <div className="text-[12px] font-sans" style={{ color: COLORS.steel }}>Calibrating depth gauge...</div>
       </div>
       <div className="flex gap-1.5">
-        <div className="w-2 h-2 rounded-full bg-[#C9A227] smooth-bounce" style={{animationDelay:'0ms'}}/>
-        <div className="w-2 h-2 rounded-full bg-[#C9A227] smooth-bounce" style={{animationDelay:'150ms'}}/>
-        <div className="w-2 h-2 rounded-full bg-[#C9A227] smooth-bounce" style={{animationDelay:'300ms'}}/>
+        <div className="w-2 h-2 rounded-full smooth-bounce" style={{ background: COLORS.buy, animationDelay: '0ms' }}/>
+        <div className="w-2 h-2 rounded-full smooth-bounce" style={{ background: COLORS.buy, animationDelay: '150ms' }}/>
+        <div className="w-2 h-2 rounded-full smooth-bounce" style={{ background: COLORS.buy, animationDelay: '300ms' }}/>
       </div>
     </div>
   );
@@ -27,7 +31,6 @@ function LoadingScreen() {
 
 export default function App() {
   const [loading, setLoading] = useState(true);
-  const { data: sentiment } = useQuery({ queryKey: ['sentiment'], queryFn: api.getSentiment, refetchInterval: 10000 });
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 3000);
@@ -37,33 +40,27 @@ export default function App() {
   if (loading) return <LoadingScreen />;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f]">
-      <header className="sticky top-0 z-50 h-14 bg-[#0d0d1a] border-b border-[rgba(255,255,255,0.06)] flex items-center px-4">
+    <div className="min-h-screen" style={{ background: COLORS.bgBase }}>
+      <header className="sticky top-0 z-50 h-14 flex items-center px-4 border-b" style={{ background: COLORS.bgCard, borderColor: 'rgba(91,107,133,0.15)' }}>
         <div className="w-full max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#C9A227] rounded-[10px] flex items-center justify-center">
-              <svg width="18" height="14" viewBox="0 0 18 14" fill="none"><path d="M1 13L6 2L9 8L12 4L17 13" stroke="#0a0a0f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: COLORS.buy }}>
+              <svg width="18" height="14" viewBox="0 0 18 14" fill="none"><path d="M1 13L6 2L9 8L12 4L17 13" stroke={COLORS.bgBase} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </div>
             <div>
-              <div className="text-[20px] font-bold text-white leading-tight tracking-tight">HyperFlow</div>
-              <div className="text-[10px] font-medium text-[#4a4a6a] uppercase tracking-[0.08em] mt-0.5">Smart Money Tracker</div>
+              <div className="text-[18px] font-bold text-white leading-tight font-mono tracking-tight">HYPERFLOW</div>
+              <div className="text-[9px] font-sans uppercase tracking-[0.15em]" style={{ color: COLORS.steel }}>Smart Money Terminal</div>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 bg-[rgba(5,150,105,0.1)] border border-[rgba(5,150,105,0.2)] rounded-full px-2.5 py-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#059669] live-dot" />
-            <span className="text-[11px] font-semibold text-[#059669]">LIVE</span>
+          <div className="flex items-center gap-1.5 rounded-full px-2.5 py-1 border" style={{ background: 'rgba(0,200,150,0.08)', borderColor: 'rgba(0,200,150,0.25)' }}>
+            <span className="w-1.5 h-1.5 rounded-full live-dot" style={{ background: COLORS.buy }} />
+            <span className="text-[10px] font-mono font-semibold" style={{ color: COLORS.buy }}>LIVE</span>
           </div>
         </div>
       </header>
 
-      <div className="w-full max-w-6xl mx-auto px-4 pt-4 pb-8 space-y-4">
-        <ReversalScoreCard />
-        <SentimentGauge
-          wsi={sentiment?.wsi ?? 0}
-          longPct={sentiment?.long_pct ?? 0}
-          shortPct={sentiment?.short_pct ?? 0}
-          totalNtl={sentiment?.total_ntl ?? 0}
-        />
+      <div className="w-full max-w-6xl mx-auto px-4 pt-4 pb-8">
+        <DepthGauge />
       </div>
     </div>
   );
