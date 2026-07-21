@@ -90,22 +90,24 @@ export default function DepthGauge() {
 
         <div className="flex gap-5">
           {/* Vertical depth gauge */}
-          <div className="relative w-14 h-[280px] shrink-0">
-            <div
-              className="absolute inset-0 rounded-full overflow-hidden"
-              style={{ background: 'linear-gradient(180deg, #FF5C5C 0%, #E8A33D 35%, #1a2332 50%, #E8A33D 65%, #00C896 100%)' }}
-            />
-            <div
-              className="absolute left-1/2 -translate-x-1/2 w-full needle-transition"
-              style={{ top: `${needlePct}%` }}
-            >
+          <div className="w-14 shrink-0">
+            <div className="text-center mb-2 text-[8px] font-mono tracking-wider" style={{ color: COLORS.steel }}>SELL</div>
+            <div className="relative w-14 h-[280px]">
               <div
-                className="w-14 h-[3px] -translate-y-1/2"
-                style={{ background: '#fff', boxShadow: `0 0 8px ${sigColor}` }}
+                className="absolute inset-0 rounded-full overflow-hidden"
+                style={{ background: 'linear-gradient(180deg, #FF5C5C 0%, #E8A33D 35%, #1a2332 50%, #E8A33D 65%, #00C896 100%)' }}
               />
+              <div
+                className="absolute left-1/2 -translate-x-1/2 w-full needle-transition"
+                style={{ top: `${needlePct}%` }}
+              >
+                <div
+                  className="w-14 h-[3px] -translate-y-1/2"
+                  style={{ background: '#fff', boxShadow: `0 0 8px ${sigColor}` }}
+                />
+              </div>
             </div>
-            <div className="absolute -left-9 top-3 text-[8px] font-mono tracking-wider" style={{ color: COLORS.steel }}>SELL</div>
-            <div className="absolute -left-9 bottom-3 text-[8px] font-mono tracking-wider" style={{ color: COLORS.steel }}>BUY</div>
+            <div className="text-center mt-2 text-[8px] font-mono tracking-wider" style={{ color: COLORS.steel }}>BUY</div>
           </div>
 
           {/* Score + signal + components */}

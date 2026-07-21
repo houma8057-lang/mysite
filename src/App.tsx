@@ -52,10 +52,7 @@ export default function App() {
               <div className="text-[9px] font-sans uppercase tracking-[0.15em]" style={{ color: COLORS.steel }}>Smart Money Terminal</div>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 rounded-full px-2.5 py-1 border" style={{ background: 'rgba(0,200,150,0.08)', borderColor: 'rgba(0,200,150,0.25)' }}>
-            <span className="w-1.5 h-1.5 rounded-full live-dot" style={{ background: COLORS.buy }} />
-            <span className="text-[10px] font-mono font-semibold" style={{ color: COLORS.buy }}>LIVE</span>
-          </div>
+          <span className="text-[10px] font-mono" style={{ color: COLORS.steel }}>hyperliquid</span>
         </div>
       </header>
 
