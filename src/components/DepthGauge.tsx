@@ -91,9 +91,9 @@ export default function DepthGauge() {
         <div className="flex gap-5">
           {/* Vertical depth gauge */}
           <div className="w-14 shrink-0">
-            <div className="text-center mb-0.5 text-[8px] font-mono tracking-wider" style={{ color: COLORS.steel }}>SELL</div>
+            <div className="text-center text-[8px] font-mono tracking-wider" style={{ color: COLORS.steel }}>SELL</div>
+            <div className="text-center mb-2 text-[7px] font-mono" style={{ color: COLORS.steel, opacity: 0.5 }}>+100</div>
             <div className="relative w-14 h-[280px]">
-              <div className="absolute -top-3 left-0 right-0 text-center text-[7px] font-mono" style={{ color: COLORS.steel, opacity: 0.5 }}>+100</div>
               <div
                 className="absolute inset-0 rounded-full overflow-hidden"
                 style={{ background: 'linear-gradient(180deg, #FF5C5C 0%, #E8A33D 35%, #1a2332 50%, #E8A33D 65%, #00C896 100%)' }}
@@ -107,9 +107,9 @@ export default function DepthGauge() {
                   style={{ background: '#fff', boxShadow: `0 0 8px ${sigColor}` }}
                 />
               </div>
-              <div className="absolute -bottom-3 left-0 right-0 text-center text-[7px] font-mono" style={{ color: COLORS.steel, opacity: 0.5 }}>-100</div>
             </div>
-            <div className="text-center mt-0.5 text-[8px] font-mono tracking-wider" style={{ color: COLORS.steel }}>BUY</div>
+            <div className="text-center mt-2 text-[7px] font-mono" style={{ color: COLORS.steel, opacity: 0.5 }}>-100</div>
+            <div className="text-center text-[8px] font-mono tracking-wider" style={{ color: COLORS.steel }}>BUY</div>
           </div>
 
           {/* Score + signal + components */}
