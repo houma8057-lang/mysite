@@ -44,7 +44,11 @@ export default function DepthGauge() {
   // depth position: -100 (surface/top) .. 0 (mid) .. +100 (depth/bottom)
   // clamp then map to a 0..100% vertical position, top = sell zone, bottom = buy zone
   const clamped = Math.max(-100, Math.min(100, score));
-  const needlePct = ((clamped + 100) / 200) * 100;
+  // Gauge gradient: red/sell at top (0%), green/buy at bottom (100%).
+  // score is negative=buy, positive=sell, so a negative score must map
+  // to a HIGH percentage (near bottom/green), not a low one - inverted
+  // from the naive (score+100)/200 mapping used here previously.
+  const needlePct = 100 - ((clamped + 100) / 200) * 100;
 
   if (isLoading) {
     return (
@@ -79,9 +83,8 @@ export default function DepthGauge() {
           <span className="text-[10px] font-sans font-semibold uppercase tracking-[0.15em]" style={{ color: COLORS.steel }}>
             HyperFlow Depth Gauge
           </span>
-          <span className="flex items-center gap-1.5 text-[9px] font-mono" style={{ color: COLORS.steel }}>
-            <span className="w-1.5 h-1.5 rounded-full live-dot" style={{ background: COLORS.buy }} />
-            LIVE · 30s
+          <span className="text-[9px] font-mono" style={{ color: COLORS.steel }}>
+            30s
           </span>
         </div>
 
@@ -101,8 +104,8 @@ export default function DepthGauge() {
                 style={{ background: '#fff', boxShadow: `0 0 8px ${sigColor}` }}
               />
             </div>
-            <div className="absolute -left-1 top-0 text-[8px] font-mono" style={{ color: COLORS.steel }}>SELL</div>
-            <div className="absolute -left-1 bottom-0 text-[8px] font-mono" style={{ color: COLORS.steel }}>BUY</div>
+            <div className="absolute -left-9 top-3 text-[8px] font-mono tracking-wider" style={{ color: COLORS.steel }}>SELL</div>
+            <div className="absolute -left-9 bottom-3 text-[8px] font-mono tracking-wider" style={{ color: COLORS.steel }}>BUY</div>
           </div>
 
           {/* Score + signal + components */}
