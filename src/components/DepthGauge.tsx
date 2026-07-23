@@ -24,6 +24,22 @@ export default function DepthGauge() {
   const components = data?.components ?? {};
   const whaleAlert = data?.whale_alert ?? {};
 
+  const { data: sentimentData } = useQuery({
+    queryKey: ['sentiment-current'],
+    queryFn: async () => {
+      const res = await fetch('https://hyperflow-backend-3l62.onrender.com/api/sentiment/current');
+      return res.json();
+    },
+    refetchInterval: 30000
+  });
+  const wsi: number = sentimentData?.wsi ?? 0;
+  const longPct: number = sentimentData?.long_pct ?? 0;
+  const shortPct: number = sentimentData?.short_pct ?? 0;
+  const totalNtl: number = sentimentData?.total_ntl ?? 0;
+  const longNtl = totalNtl * (longPct / 100);
+  const shortNtl = totalNtl * (shortPct / 100);
+  const fmt = (v: number) => v >= 1e9 ? `$${(v/1e9).toFixed(2)}B` : v >= 1e6 ? `$${(v/1e6).toFixed(2)}M` : `$${(v/1e3).toFixed(2)}K`;
+
   const rows = [
     { label: 'WSI', key: 'wsi_score' },
     { label: 'FUNDING', key: 'funding_score' },
@@ -79,13 +95,29 @@ export default function DepthGauge() {
         className="rounded-2xl border p-5"
         style={{ background: COLORS.bgCard, borderColor: 'rgba(91,107,133,0.2)' }}
       >
-        <div className="flex items-center justify-between mb-5">
+        <div className="mb-5">
           <span className="text-[10px] font-sans font-semibold uppercase tracking-[0.15em]" style={{ color: COLORS.steel }}>
             HyperFlow Depth Gauge
           </span>
-          <span className="text-[9px] font-mono" style={{ color: COLORS.steel }}>
-            30s
-          </span>
+        </div>
+
+        <div className="mb-4 pb-4 border-b" style={{ borderColor: 'rgba(91,107,133,0.15)' }}>
+          <div className="flex items-center justify-between mb-1.5">
+            <div>
+              <div className="text-[9px] font-sans tracking-wide" style={{ color: COLORS.steel }}>LONG</div>
+              <div className="text-[15px] font-mono font-bold tabular-nums" style={{ color: COLORS.buy }}>{fmt(longNtl)}</div>
+            </div>
+            <div className="text-right">
+              <div className="text-[9px] font-sans tracking-wide" style={{ color: COLORS.steel }}>SHORT</div>
+              <div className="text-[15px] font-mono font-bold tabular-nums" style={{ color: COLORS.sell }}>{fmt(shortNtl)}</div>
+            </div>
+          </div>
+          <div className="h-1 rounded-full overflow-hidden" style={{ background: COLORS.sell }}>
+            <div className="h-full" style={{ width: `${longPct}%`, background: COLORS.buy }} />
+          </div>
+          <div className="text-center mt-1.5 text-[9px] font-mono" style={{ color: COLORS.steel }}>
+            WSI {wsi >= 0 ? '+' : ''}{wsi.toFixed(3)}
+          </div>
         </div>
 
         <div className="flex gap-5">
